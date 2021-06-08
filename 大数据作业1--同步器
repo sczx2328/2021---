@@ -1,1 +1,201 @@
+package file;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PartETag;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.UploadPartRequest;
+
+
+public class last {
+	private final static String bucketName = "john";
+	private final static String accessKey = "1603961BCC1DC7F1F503";
+	private final static String secretKey = "WzA3OTVGQzQ5RkJDQzY4QUI2MjA4RkI5OUYyMEUx";
+	private final static String serviceEndpoint = "http://10.16.0.1:81";
+	private static long partSize = 5 << 20;
+	private final static String signingRegion = "";
+	
+	public static void main(String[] args) {
+	  final BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey,secretKey);
+	  final ClientConfiguration ccfg = new ClientConfiguration().withUseExpectContinue(true);
+	  final EndpointConfiguration endpoint = new EndpointConfiguration(serviceEndpoint, signingRegion);
+      final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withClientConfiguration(ccfg)
+                .withEndpointConfiguration(endpoint)
+                .withPathStyleAccessEnabled(true)
+                .build();
+		
+        int size=0;
+        File dir = new File("D://lab");
+        File[] files = dir.listFiles();
+        for(File file1:files)//进行循环，每次选择文件夹下的一个文件进行同步，循环次数为文件夹内文件的数量大小
+        {
+        	size++;
+        }
+        for(int k=0;k<=size;k++)
+        {
+        	final File rootPath=files[k];
+        	final String filePath=txt2String(rootPath);//将file格式的文件路径转换为string类型的路径名以便于get调用
+		
+        
+        //*文件分片上传
+        	
+        String keyName = Paths.get(filePath).getFileName().toString();
+		
+		// Create a list of UploadPartResponse objects. You get one of these
+        // for each part upload.
+        
+		ArrayList<PartETag> partETags = new ArrayList<PartETag>();
+		File file = new File(filePath);
+		long contentLength = file.length();
+		String uploadId = null;
+		
+		try {
+			// Step 1: Initialize.
+			InitiateMultipartUploadRequest initRequest = 
+					new InitiateMultipartUploadRequest(bucketName, keyName);
+			uploadId = s3.initiateMultipartUpload(initRequest).getUploadId();
+			System.out.format("Created upload ID was %s\n", uploadId);
+
+			// Step 2: Upload parts.
+			long filePosition = 0;
+			for (int i = 1; filePosition < contentLength; i++) {
+				// Last part can be less than 5 MB. Adjust part size.
+				partSize = Math.min(partSize, contentLength - filePosition);
+
+				// Create request to upload a part.
+				UploadPartRequest uploadRequest = new UploadPartRequest()
+						.withBucketName(bucketName)
+						.withKey(keyName)
+						.withUploadId(uploadId)
+						.withPartNumber(i)
+						.withFileOffset(filePosition)
+						.withFile(file)
+						.withPartSize(partSize);
+
+				// Upload part and add response to our list.
+				System.out.format("Uploading part %d\n", i);
+				partETags.add(s3.uploadPart(uploadRequest).getPartETag());
+
+				filePosition += partSize;
+			}
+
+			// Step 3: Complete.
+			System.out.println("Completing upload");
+			CompleteMultipartUploadRequest compRequest = 
+					new CompleteMultipartUploadRequest(bucketName, keyName, uploadId, partETags);
+
+			s3.completeMultipartUpload(compRequest);
+		} catch (Exception e) {
+			System.err.println(e.toString());
+			if (uploadId != null && !uploadId.isEmpty()) {
+				// Cancel when error occurred
+				System.out.println("Aborting upload");
+				s3.abortMultipartUpload(new AbortMultipartUploadRequest(bucketName, keyName, uploadId));
+			}
+			System.exit(1);
+		}
+		System.out.println("Done!");
+		
+		
+		
+		//文件分片下载
+		
+       final String filePath1 = Paths.get(filePath, keyName).toString();
+		
+		File file1 = new File(filePath1);
+		
+		S3Object o = null;
+		
+		S3ObjectInputStream s3is = null;
+		FileOutputStream fos = null;
+		
+		try {
+			// Step 1: Initialize.
+			ObjectMetadata oMetaData = s3.getObjectMetadata(bucketName, keyName);
+			final long contentLength1 = oMetaData.getContentLength();
+			final GetObjectRequest downloadRequest = new GetObjectRequest(bucketName, keyName);
+
+			fos = new FileOutputStream(file1);
+
+			// Step 2: Download parts.
+			long filePosition = 0;
+			for (int i = 1; filePosition < contentLength1; i++) {
+				// Last part can be less than 5 MB. Adjust part size.
+				partSize = Math.min(partSize, contentLength - filePosition);
+
+				// Create request to download a part.
+				downloadRequest.setRange(filePosition, filePosition + partSize);
+				o = s3.getObject(downloadRequest);
+
+				// download part and save to local file.
+				System.out.format("Downloading part %d\n", i);
+
+				filePosition += partSize+1;
+				s3is = o.getObjectContent();
+				byte[] read_buf = new byte[64 * 1024];
+				int read_len = 0;
+				while ((read_len = s3is.read(read_buf)) > 0) {
+					fos.write(read_buf, 0, read_len);
+				}
+			}
+
+			// Step 3: Complete.
+			System.out.println("Completing download");
+
+			System.out.format("save %s to %s\n", keyName, filePath);
+		} catch (Exception e) {
+			System.err.println(e.toString());
+			
+			System.exit(1);
+		} finally {
+			if (s3is != null) try { s3is.close(); } catch (IOException e) { }
+			if (fos != null) try { fos.close(); } catch (IOException e) { }
+		}
+		System.out.println("Done!");
+	}
+	}
+	
+	public static String txt2String(File file)//这个函数类是用来转换file类型为string类型的
+    {
+        String result = "";
+        try
+        {
+            // 构造一个BufferedReader类来读取文件
+            // BufferedReader br1 = new BufferedReader(new FileReader(file));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath()), "GBK"));
+            String s = null;
+            while ((s = br.readLine()) != null)
+            {// 使用readLine方法，一次读一行
+                result = result + "\n" + s;
+            }
+            br.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        // System.out.println(result);
+        return result;
+    }
+}
