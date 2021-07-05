@@ -1,0 +1,10 @@
+-- 测试数据
+INSERT INTO "data_test"."data_shop" VALUES ('https://www.taobao.com', '淘宝网', '10000000000', '10000000', '7',);
+INSERT INTO "data_test"."data_shop" VALUES ('https://www.jd.com', '京东', '2000000000', '2000000', '6');
+INSERT INTO "data_test"."data_shop" VALUES ('https://www.pinduoduo.com', '拼多多', '10000000000', '1500000', '4');
+INSERT INTO "data_test"."data_user" VALUES ('201866470024', 'bjw', '13965469860', '广东省广州市','19','男','1000');
+INSERT INTO "data_test"."data_user" VALUES ('weweuwie2323', 'dfe', '13456789678', '安徽省六安市','21','男','50');
+INSERT INTO "data_test"."data_user" VALUES ('jdsdfr45454542', 'john', '12356789000', '安徽省芜湖市','14','女','200');
+INSERT INTO "data_test"."data_user" VALUES ('djedieefhe1232', 'faker', '12567346890', '广东省韶关市','41','女','3000');
+INSERT INTO "data_test"."data_user" VALUES ('ewrere2323444', 'hsd', '13976585546', '河北省石家庄市','30','女','12000');
+INSERT INTO "data_test"."data_user" VALUES ('wqwe12245666', 'wsh', '13467889051', '山东省济南市','18','男','280');

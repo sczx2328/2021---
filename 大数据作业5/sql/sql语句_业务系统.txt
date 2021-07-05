@@ -1,0 +1,108 @@
+-- 商城
+-- drop schema if exists data_test CASCADE;
+-- create schema data_test;
+drop table if exists data_test.data_shop;
+create table data_test.data_shop
+(
+  shop_website VARCHAR(50) PRIMARY KEY,
+  shop_name VARCHAR(50),
+  shop_allsell VARCHAR(50),
+  shop_newcustom VARCHAR(50),
+  data_month VARCHAR(6),
+);
+-- Add comments to the table 
+comment on table data_test.data_shop
+  is '商城';
+-- Add comments to the columns 
+comment on column data_test.data_shop.shop_website
+  is '商城网址';
+comment on column data_test.data_shop.shop_name
+  is '商城名称';
+comment on column data_test.data_shop.shop_allsell
+  is '商城总销售额';
+comment on column data_test.data_shop.shop_newcustom
+  is '商城新增注册人数';
+comment on column data_test.data_shop.data_month
+  is '商城经营时间(月)';
+
+-- 用户
+drop table if exists data_test.data_user;
+create table data_test.data_user
+(
+  user_id  VARCHAR(50) PRIMARY KEY,
+  user_name  VARCHAR(50),
+  user_phone  VARCHAR(50),
+  user_address VARCHAR(50),
+  user_age VARCHAR(50),
+  user_sex VARCHAR(50),
+  user_spend VARCHAR(50),
+);
+-- Add comments to the table 
+comment on table data_test.data_user
+  is '用户';
+-- Add comments to the columns 
+comment on column data_test.data_user.user_id
+  is '用户商城id';
+comment on column data_test.data_user.user_name
+  is '用户姓名';
+comment on column data_test.data_user.user_phone
+  is '用户电话号码';
+comment on column data_test.data_user.user_address
+  is '用户地址';
+comment on column data_test.data_user.user_age
+  is '用户年龄';
+comment on column data_test.data_user.user_sex
+  is '用户性别';
+comment on column data_test.data_user.user_spend
+  is '用户交易额';
+  
+-- 商家
+drop table if exists data_test.data_business;
+create table data_test.data_business
+(
+  sell_location  VARCHAR(50) PRIMARY KEY,
+  sell_name  VARCHAR(50),
+  sell_type  VARCHAR(50),
+  sell_owner  VARCHAR(50),
+);
+-- Add comments to the table 
+comment on table data_test.data_business
+  is '商家';
+-- Add comments to the columns 
+comment on column data_test.data_business.sell_location
+  is '商铺地址';
+comment on column data_test.data_business.sell_name
+  is '商家名称';
+comment on column data_test.data_business.sell_type
+  is '商家类型';
+comment on column data_test.data_business.sell_owner
+  is '商铺主人';
+
+-- 商品
+drop table if exists data_test.data_goods;
+create table data_test.data_goods
+(
+  goods_id  VARCHAR(50) PRIMARY KEY,
+  goods_name  VARCHAR(50),
+  goods_money  VARCHAR(50),
+  goods_time  timestamp,
+  goods_number  VARCHAR(50),
+  goods_user  VARCHAR(50),
+);
+-- Add comments to the table 
+comment on table data_test.data_goods
+  is '商品';
+-- Add comments to the columns 
+comment on column data_test.data_goods.goods_id
+  is '商品id';
+comment on column data_test.data_goods.goods_name
+  is '商品名称';
+comment on column data_test.data_goods.goods_money
+  is '商品价格';
+comment on column data_test.data_goods.goods_time
+  is '成交时间';
+comment on column data_test.data_goods.goods_number
+  is '成交数量';
+comment on column data_test.data_goods.goods_user
+  is '交易客户';
+

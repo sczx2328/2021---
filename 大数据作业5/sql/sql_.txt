@@ -1,0 +1,48 @@
+-- 城市销售情况
+drop table if exists data_test.data_city_sell;
+create table data_test.data_city_sell
+(
+  city_name VARCHAR(50) PRIMARY KEY,
+  city_user_number VARCHAR(50),
+  city_sell_money VARCHAR(50),
+  city_type_money VARCHAR(50),
+);
+-- Add comments to the table 
+comment on table data_test.data_city_sell
+  is '城市销售情况';
+-- Add comments to the columns 
+comment on column data_test.data_city_sell.city_name
+  is '城市名称';
+comment on column data_test.data_city_sell.city_user_number
+  is '城市用户数量';
+comment on column data_test.data_city_sell.city_sell_money
+  is '城市总销售额';
+comment on column data_test.data_city_sell.city_type_money
+  is '城市类别销售额';
+
+
+-- 性别销售情况
+drop table if exists data_test.data_sex_sell;
+create table data_test.data_sex_sell
+(
+  goods_id  VARCHAR(50) PRIMARY KEY,
+  men_sell_money VARCHAR(50),
+  women_sell_money VARCHAR(50),
+  men_type_money VARCHAR(50),
+  women_type_money VARCHAR(50),
+);
+-- Add comments to the table 
+comment on table data_test.data_sex_sell
+  is '性别销售情况';
+-- Add comments to the columns 
+comment on column data_test.data_sex_sell.goods_id
+  is '商品id';
+comment on column data_test.data_sex_sell.men_sell_money
+  is '男性消费金额';
+comment on column data_test.data_sex_sell.women_sell_money
+  is '女性消费金额';
+comment on column data_test.data_sex_sell.men_type_money
+  is '男性商品类别消费金额';
+comment on column data_test.data_sex_sell.women_type_money
+  is '女性商品类别消费金额';
+
